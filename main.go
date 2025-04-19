@@ -18,6 +18,9 @@ var (
 	db        *gorm.DB
 )
 
+// Объявляем функцию showLeaveRequests, которая определена в ui.go
+var showLeaveRequests func(fyne.Window)
+
 func init() {
 	bundle := i18n.NewBundle(language.Russian)
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -51,9 +54,12 @@ func main() {
 		log.Fatal("Failed to migrate database: ", err)
 	}
 
+	// Инициализируем UI функции
+	initUI()
+
 	// Начинаем с отображения таблицы отпусков
 	showLeaveRequests(w)
 
-	w.Resize(fyne.NewSize(800, 600))
+	w.Resize(fyne.NewSize(900, 700)) // Увеличиваем размер окна для лучшего отображения
 	w.ShowAndRun()
 }

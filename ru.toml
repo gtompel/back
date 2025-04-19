@@ -73,3 +73,11 @@
 [cancel]
   id = "cancel"
   translation = "Отмена"
+
+[leave_requests_list]
+id="leave_requests_list"
+translation="Список заявлений на отпуск"
+
+[add_leave_request]
+id="add_leave_request"
+translation="Добавление заявления на отпуск"
