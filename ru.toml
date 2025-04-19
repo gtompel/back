@@ -69,3 +69,7 @@
 [invalid_date]
   id = "invalid_date"
   translation = "Неверная дата"
+
+[cancel]
+  id = "cancel"
+  translation = "Отмена"
