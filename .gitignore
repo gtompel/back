@@ -1,0 +1,34 @@
+# Go binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build output
+/bin
+/obj/
+
+# Go workspace and module settings
+/go.sum
+/go.mod
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+
+# IDE files
+*.idea/
+*.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Operating system specific files
+.DS_Store
+*.db
+
+# Test result files
+*.out
+*.test

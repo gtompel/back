@@ -1,0 +1,71 @@
+[leave_management_app]
+  id = "leave_management_app"
+  translation = "Приложение для управления отпусками"
+
+[leave_type]
+  id = "leave_type"
+  translation = "Тип отпуска"
+
+[select_leave_type]
+  id = "select_leave_type"
+  translation = "Выберите тип отпуска"
+
+[start_date]
+  id = "start_date"
+  translation = "Дата начала"
+
+[end_date]
+  id = "end_date"
+  translation = "Дата окончания"
+
+[reason]
+  id = "reason"
+  translation = "Причина"
+
+[submit]
+  id = "submit"
+  translation = "Отправить"
+
+[selected_leave_type]
+  id = "selected_leave_type"
+  translation = "Выбранный тип отпуска: %s"
+
+[paid]
+  id = "paid"
+  translation = "Оплачиваемый"
+
+[unpaid]
+  id = "unpaid"
+  translation = "Неоплачиваемый"
+
+[sick]
+  id = "sick"
+  translation = "Больничный"
+
+[last_name]
+  id = "last_name"
+  translation = "Фамилия"
+
+[first_name]
+  id = "first_name"
+  translation = "Имя"
+
+[middle_name]
+  id = "middle_name"
+  translation = "Отчество"
+
+[start_date_format]
+  id = "start_date_format"
+  translation = "ДД.ММ.ГГГГ"
+
+[end_date_format]
+  id = "end_date_format"
+  translation = "ДД.ММ.ГГГГ"
+
+[invalid_date_format]
+  id = "invalid_date_format"
+  translation = "Неверный формат даты"
+
+[invalid_date]
+  id = "invalid_date"
+  translation = "Неверная дата"
