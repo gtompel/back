@@ -12,11 +12,11 @@
 
 [start_date]
   id = "start_date"
-  translation = "Дата начала"
+  translation = "Начало"
 
 [end_date]
   id = "end_date"
-  translation = "Дата окончания"
+  translation = "Окончание"
 
 [reason]
   id = "reason"

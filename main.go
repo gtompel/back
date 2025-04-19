@@ -16,10 +16,11 @@ import (
 var (
 	localizer *i18n.Localizer
 	db        *gorm.DB
-)
 
-// Объявляем функцию showLeaveRequests, которая определена в ui.go
-var showLeaveRequests func(fyne.Window)
+	// Объявляем функции UI только здесь, а не в ui.go
+	showLeaveRequests func(fyne.Window)
+	showAddLeaveForm  func(fyne.Window)
+)
 
 func init() {
 	bundle := i18n.NewBundle(language.Russian)
@@ -59,7 +60,6 @@ func main() {
 
 	// Начинаем с отображения таблицы отпусков
 	showLeaveRequests(w)
-
 	w.Resize(fyne.NewSize(900, 700)) // Увеличиваем размер окна для лучшего отображения
 	w.ShowAndRun()
 }
