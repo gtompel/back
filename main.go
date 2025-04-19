@@ -75,6 +75,53 @@ func main() {
 		log.Fatal("Failed to migrate database: ", err)
 	}
 
+	// Начинаем с отображения таблицы отпусков
+	showLeaveRequests(w)
+
+	w.Resize(fyne.NewSize(800, 600))
+	w.ShowAndRun()
+}
+
+func showLeaveRequests(w fyne.Window) {
+	var results []struct {
+		LastName  string
+		FirstName string
+		StartDate time.Time
+		EndDate   time.Time
+		Type      string
+	}
+
+	db.Table("leave_requests").
+		Select("employees.last_name, employees.first_name, leave_requests.start_date, leave_requests.end_date, leave_requests.type").
+		Joins("join employees on leave_requests.employee_id = employees.id").
+		Scan(&results)
+
+	data := [][]string{{localize("last_name"), localize("first_name"), localize("start_date"), localize("end_date"), localize("leave_type")}}
+	for _, r := range results {
+		data = append(data, []string{r.LastName, r.FirstName, r.StartDate.Format("02.01.2006"), r.EndDate.Format("02.01.2006"), r.Type})
+	}
+
+	table := widget.NewTable(
+		func() (int, int) { return len(data), 5 },
+		func() fyne.CanvasObject { return widget.NewLabel("template") },
+		func(id widget.TableCellID, o fyne.CanvasObject) {
+			label := o.(*widget.Label)
+			label.SetText(data[id.Row][id.Col])
+		},
+	)
+
+	// Добавляем кнопку "+" для добавления нового отпуска
+	addButton := widget.NewButton("+", func() {
+		showAddLeaveForm(w)
+	})
+
+	// Создаем контейнер с таблицей и кнопкой
+	content := container.NewBorder(nil, container.NewHBox(addButton), nil, nil, table)
+
+	w.SetContent(content)
+}
+
+func showAddLeaveForm(w fyne.Window) {
 	lastName := widget.NewEntry()
 	lastName.SetPlaceHolder(localize("last_name"))
 
@@ -84,42 +131,71 @@ func main() {
 	middleName := widget.NewEntry()
 	middleName.SetPlaceHolder(localize("middle_name"))
 
-	// Create a label for the leave type
+	// Создаем метку для placeholder
 	selectedLeaveType := localize("select_leave_type")
 	leaveTypeLabel := widget.NewLabel(selectedLeaveType)
 
-	// Create a PopUpMenu for leave type selection
+	// Создаем PopUpMenu для выбора типа отпуска
 	menu := fyne.NewMenu("",
 		&fyne.MenuItem{Label: localize("paid"),
 			Action: func() {
-				selectedLeaveType = localize("paid")
+				selectedLeaveType := localize("paid")
 				leaveTypeLabel.SetText(selectedLeaveType)
 				fmt.Println(fmt.Sprintf(localize("selected_leave_type"), selectedLeaveType))
 			}},
 		&fyne.MenuItem{Label: localize("unpaid"),
 			Action: func() {
-				selectedLeaveType = localize("unpaid")
+				selectedLeaveType := localize("unpaid")
 				leaveTypeLabel.SetText(selectedLeaveType)
 				fmt.Println(fmt.Sprintf(localize("selected_leave_type"), selectedLeaveType))
 			}},
 		&fyne.MenuItem{Label: localize("sick"),
 			Action: func() {
-				selectedLeaveType = localize("sick")
+				selectedLeaveType := localize("sick")
 				leaveTypeLabel.SetText(selectedLeaveType)
 				fmt.Println(fmt.Sprintf(localize("selected_leave_type"), selectedLeaveType))
 			}},
 	)
 
-	// Initialize the leaveTypeButton
-	leaveTypeButton := widget.NewButton(selectedLeaveType, func() {
-		widget.NewPopUpMenu(menu, w.Canvas()).Show()
+	// Правильное объявление переменной leaveTypeButton
+	var leaveTypeButton *widget.Button
+	leaveTypeButton = widget.NewButton(selectedLeaveType, func() {
+		// Получаем позицию кнопки относительно окна
+		buttonPos := fyne.CurrentApp().Driver().AbsolutePositionForObject(leaveTypeButton)
+		// Получаем размер кнопки
+		buttonSize := leaveTypeButton.Size()
+
+		// Вычисляем позицию для PopUpMenu (подя кнопкой)
+		popUpPos := fyne.NewPos(buttonPos.X, buttonPos.Y+buttonSize.Height)
+
+		widget.NewPopUpMenu(menu, w.Canvas()).ShowAtPosition(popUpPos)
 	})
 
 	startDate := widget.NewEntry()
 	startDate.SetPlaceHolder(localize("start_date_format"))
+	startDate.OnChanged = func(s string) {
+		if len(s) != 10 || s[2] != '.' || s[5] != '.' {
+			startDate.SetText(localize("invalid_date_format"))
+		} else {
+			_, err := time.Parse("02.01.2006", s)
+			if err != nil {
+				startDate.SetText(localize("invalid_date"))
+			}
+		}
+	}
 
 	endDate := widget.NewEntry()
 	endDate.SetPlaceHolder(localize("end_date_format"))
+	endDate.OnChanged = func(s string) {
+		if len(s) != 10 || s[2] != '.' || s[5] != '.' {
+			endDate.SetText(localize("invalid_date_format"))
+		} else {
+			_, err := time.Parse("02.01.2006", s)
+			if err != nil {
+				endDate.SetText(localize("invalid_date"))
+			}
+		}
+	}
 
 	reason := widget.NewMultiLineEntry()
 	reason.SetPlaceHolder(localize("reason"))
@@ -172,6 +248,11 @@ func main() {
 		showLeaveRequests(w)
 	})
 
+	// Кнопка отмены для возврата к таблице
+	cancelButton := widget.NewButton(localize("cancel"), func() {
+		showLeaveRequests(w)
+	})
+
 	content := container.NewVBox(
 		widget.NewLabel(localize("last_name")+":"),
 		lastName,
@@ -187,42 +268,8 @@ func main() {
 		endDate,
 		widget.NewLabel(localize("reason")+":"),
 		reason,
-		submitButton,
+		container.NewHBox(submitButton, cancelButton),
 	)
 
 	w.SetContent(content)
-	w.Resize(fyne.NewSize(600, 600))
-	w.ShowAndRun()
-}
-
-func showLeaveRequests(w fyne.Window) {
-	var results []struct {
-		LastName  string
-		FirstName string
-		StartDate time.Time
-		EndDate   time.Time
-		Type      string
-	}
-
-	db.Table("leave_requests").
-		Select("employees.last_name, employees.first_name, leave_requests.start_date, leave_requests.end_date, leave_requests.type").
-		Joins("join employees on leave_requests.employee_id = employees.id").
-		Scan(&results)
-
-	data := [][]string{{localize("last_name"), localize("first_name"), localize("start_date"), localize("end_date"), localize("leave_type")}}
-	for _, r := range results {
-		data = append(data, []string{r.LastName, r.FirstName, r.StartDate.Format("02.01.2006"), r.EndDate.Format("02.01.2006"), r.Type})
-	}
-
-	table := widget.NewTable(
-		func() (int, int) { return len(data), 5 },
-		func() fyne.CanvasObject { return widget.NewLabel("template") },
-		func(id widget.TableCellID, o fyne.CanvasObject) {
-			label := o.(*widget.Label)
-			label.SetText(data[id.Row][id.Col])
-		},
-	)
-
-	w.SetContent(table)
-	w.Resize(fyne.NewSize(800, 600))
 }
